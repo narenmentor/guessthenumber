@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess the Number</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink: #14171f;
+    --panel: #1c2029;
+    --panel-2: #232838;
+    --amber: #f2a93b;
+    --teal: #3fbfad;
+    --cold: #4f8ff7;
+    --hot: #ef5b5b;
+    --text: #f5f3ee;
+    --muted: #8a8f98;
+    --line: #2c313f;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 40px 36px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--teal);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 1.1;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 14.5px;
+    margin: 0 0 30px;
+    line-height: 1.5;
+  }
+
+  .sub b { color: var(--text); font-weight: 600; }
+
+  /* --- Signature element: heat gauge --- */
+  .gauge-wrap {
+    margin-bottom: 26px;
+  }
+
+  .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .gauge {
+    position: relative;
+    height: 14px;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+      var(--cold) 0%,
+      #6f8fd0 20%,
+      #8a8a8a 40%,
+      #b98a6f 55%,
+      #d97a58 70%,
+      var(--hot) 100%);
+    opacity: 0.35;
+  }
+
+  .gauge-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .gauge-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 3px solid var(--ink);
+    box-shadow: 0 0 0 2px var(--panel-2), 0 4px 10px rgba(0,0,0,0.4);
+    transform: translate(-50%, -50%);
+    transition: left 0.45s cubic-bezier(.2,.7,.3,1);
+  }
+
+  .temp-msg {
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--muted);
+    margin-top: 12px;
+    min-height: 20px;
+    transition: color 0.3s ease;
+  }
+
+  /* --- Input row --- */
+  .row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  input[type="number"] {
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 14px 16px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  input[type="number"]:focus {
+    border-color: var(--amber);
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  button {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 12px;
+    padding: 0 22px;
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+  }
+
+  button:active { transform: scale(0.96); }
+
+  #guessBtn {
+    background: var(--amber);
+    color: #201302;
+  }
+
+  #guessBtn:hover { filter: brightness(1.08); }
+
+  #guessBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .attempts b { color: var(--text); }
+
+  #restartBtn {
+    background: transparent;
+    color: var(--teal);
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    font-size: 13px;
+    display: none;
+  }
+
+  #restartBtn:hover {
+    border-color: var(--teal);
+  }
+
+  .history {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 18px;
+    min-height: 0;
+  }
+
+  .chip {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  .chip.hot { color: var(--hot); border-color: rgba(239,91,91,0.35); }
+  .chip.cold { color: var(--cold); border-color: rgba(79,143,247,0.35); }
+
+  .win-banner {
+    display: none;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--amber);
+    margin: -4px 0 20px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gauge-pointer { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <p class="eyebrow">A number is waiting</p>
+  <h1>Guess the Number</h1>
+  <p class="sub">I'm thinking of a number between <b>1</b> and <b>100</b>. The gauge tells you how close you are &mdash; blue is cold, red is hot.</p>
+
+  <div class="win-banner" id="winBanner"></div>
+
+  <div class="gauge-wrap">
+    <div class="gauge-labels"><span>Cold</span><span>Hot</span></div>
+    <div class="gauge">
+      <div class="gauge-fill" id="gaugeFill"></div>
+      <div class="gauge-pointer" id="gaugePointer" style="left:50%"></div>
+    </div>
+    <p class="temp-msg" id="tempMsg">Make your first guess</p>
+  </div>
+
+  <div class="row">
+    <input type="number" id="guessInput" min="1" max="100" placeholder="Enter 1&ndash;100" autocomplete="off">
+    <button id="guessBtn">Guess</button>
+  </div>
+
+  <div class="meta-row">
+    <span class="attempts">Attempts: <b id="attemptCount">0</b></span>
+    <button id="restartBtn">Play again</button>
+  </div>
+
+  <div class="history" id="history"></div>
+</div>
+
+<script>
+  const MIN = 1, MAX = 100;
+  let target = randomTarget();
+  let attempts = 0;
+  let won = false;
+  let guesses = [];
+
+  const input = document.getElementById('guessInput');
+  const guessBtn = document.getElementById('guessBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const attemptCount = document.getElementById('attemptCount');
+  const tempMsg = document.getElementById('tempMsg');
+  const pointer = document.getElementById('gaugePointer');
+  const historyEl = document.getElementById('history');
+  const winBanner = document.getElementById('winBanner');
+
+  function randomTarget() {
+    return Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+  }
+
+  function closeness(guess) {
+    // 0 = maximum possible distance, 1 = exact match
+    const maxDist = MAX - MIN;
+    const dist = Math.abs(guess - target);
+    return 1 - Math.min(dist / maxDist, 1);
+  }
+
+  function tempLabel(c, guess) {
+    if (guess === target) return "Nailed it — that's the number.";
+    if (c > 0.92) return "Scorching. You're right on top of it.";
+    if (c > 0.75) return "Very hot.";
+    if (c > 0.55) return "Warm.";
+    if (c > 0.35) return "Cool.";
+    if (c > 0.15) return "Cold.";
+    return "Freezing. Try the far end.";
+  }
+
+  function tempColor(c) {
+    if (c > 0.75) return getCSS('--hot');
+    if (c > 0.4) return getCSS('--amber');
+    return getCSS('--cold');
+  }
+
+  function getCSS(v) {
+    return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  }
+
+  function handleGuess() {
+    if (won) return;
+    const val = parseInt(input.value, 10);
+    if (isNaN(val) || val < MIN || val > MAX) {
+      tempMsg.textContent = `Enter a whole number between ${MIN} and ${MAX}.`;
+      tempMsg.style.color = getCSS('--hot');
+      return;
+    }
+
+    attempts++;
+    attemptCount.textContent = attempts;
+
+    const c = closeness(val);
+    pointer.style.left = (c * 100) + '%';
+    tempMsg.textContent = tempLabel(c, val);
+    tempMsg.style.color = tempColor(c);
+
+    addChip(val, c);
+
+    if (val === target) {
+      won = true;
+      winBanner.style.display = 'block';
+      winBanner.textContent = attempts === 1
+        ? `Got it in 1 guess. Beginner's luck.`
+        : `Got it in ${attempts} guesses!`;
+      guessBtn.disabled = true;
+      restartBtn.style.display = 'inline-block';
+      input.disabled = true;
+    }
+
+    input.value = '';
+    input.focus();
+  }
+
+  function addChip(val, c) {
+    const chip = document.createElement('span');
+    chip.className = 'chip ' + (val === target ? '' : (val < target ? 'cold' : 'hot'));
+    chip.textContent = val === target ? `${val} ✓` : (val < target ? `${val} ↑` : `${val} ↓`);
+    historyEl.appendChild(chip);
+    guesses.push(val);
+  }
+
+  function restart() {
+    target = randomTarget();
+    attempts = 0;
+    won = false;
+    guesses = [];
+    attemptCount.textContent = 0;
+    tempMsg.textContent = 'Make your first guess';
+    tempMsg.style.color = '';
+    pointer.style.left = '50%';
+    historyEl.innerHTML = '';
+    winBanner.style.display = 'none';
+    winBanner.textContent = '';
+    guessBtn.disabled = false;
+    restartBtn.style.display = 'none';
+    input.disabled = false;
+    input.value = '';
+    input.focus();
+  }
+
+  guessBtn.addEventListener('click', handleGuess);
+  restartBtn.addEventListener('click', restart);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleGuess();
+  });
+
+  input.focus();
+</script>
+
+</body>
+</html>
