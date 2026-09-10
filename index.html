@@ -94,15 +94,15 @@
     attemptCount.textContent = attempts;
 
     if (guess === randomNumber) {
-      message.textContent = `🎉 Correct! The number was ${randomNumber}. You got it in ${attempts} attempts!`;
+      message.textContent = `🎉 சரியாக சொன்னீங்க! எண் ${randomNumber} தான். நீங்க ${attempts} முயற்சிகளில் கண்டுபிடிச்சீங்க!`;
       message.className = "mb-3 text-success";
       guessBtn.disabled = true;
       guessInput.disabled = true;
     } else if (guess < randomNumber) {
-      message.textContent = "📈 Too low! Try a higher number.";
+      message.textContent = "📈 குறைவா இருக்கு! இன்னும் பெரிய எண்ணை சொல்லுங்க.";
       message.className = "mb-3 text-info";
     } else {
-      message.textContent = "📉 Too high! Try a lower number.";
+      message.textContent = "📉 அதிகமா இருக்கு! இன்னும் சின்ன எண்ணை சொல்லுங்க.";
       message.className = "mb-3 text-danger";
     }
 
